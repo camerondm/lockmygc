@@ -14,9 +14,6 @@ export async function POST(req: NextRequest) {
       groupId: string;
     };
 
-    console.log("Wallet address: ", walletAddress);
-    console.log("Group ID: ", groupId);
-
     if (!walletAddress || !groupId) {
       return NextResponse.json(
         { error: "Wallet address and group ID are required." },

@@ -11,16 +11,6 @@ const supabase = createClient(
 const botToken = process.env.TELEGRAM_BOT_TOKEN!;
 const bot = new Bot(botToken);
 
-// Handle bot being added to a group
-bot.on("chat_member", (ctx) => {
-  if (ctx.chatMember.new_chat_member.user.id === ctx.me.id) {
-    ctx.reply(
-      `Hello! Use /activate <token_address> <minimum_token_count> to configure me for this group.`,
-      { parse_mode: "Markdown" }
-    );
-  }
-});
-
 // Handle /start command
 bot.command("start", async (ctx) => {
   ctx.reply(
