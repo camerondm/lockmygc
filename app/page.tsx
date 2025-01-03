@@ -29,6 +29,7 @@ export default function Home() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, connected } = useWallet();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokenMetadata, setTokenMetadata] = useState<any>(null);
   const [minimumTokenCount, setMinimumTokenCount] = useState(0);
   useEffect(() => {
