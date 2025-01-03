@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import FuturisticBackground from "./components/Background";
 import HowItWorks from "./components/HowItWorks";
 import { createClient } from "@supabase/supabase-js";
+import { Navbar } from "./components/Navbar";
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -32,6 +33,8 @@ export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokenMetadata, setTokenMetadata] = useState<any>(null);
   const [minimumTokenCount, setMinimumTokenCount] = useState(0);
+  const contractAddress = "0xYourContractAddressHere"; // Replace with your actual contract address
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -158,6 +161,7 @@ export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden text-purple-50">
       <FuturisticBackground />
+      <Navbar />
       <div className="container mx-auto px-4 py-8 md:py-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
