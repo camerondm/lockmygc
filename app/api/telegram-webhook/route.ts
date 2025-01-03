@@ -97,7 +97,11 @@ bot.command("activate", async (ctx) => {
 export async function POST(req: Request) {
   const body = await req.json();
   try {
-    await bot.handleUpdate(body); // Process Telegram updates via webhook
+    // Initialize the bot (required for webhook mode)
+    await bot.init();
+
+    // Process Telegram updates via webhook
+    await bot.handleUpdate(body);
     return new Response("OK", { status: 200 });
   } catch (error) {
     console.error("Error handling update:", error);
