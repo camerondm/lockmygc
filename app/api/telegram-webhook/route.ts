@@ -22,8 +22,8 @@ bot.on("chat_member", (ctx) => {
 
 // Handle /activate command
 bot.command("activate", async (ctx) => {
-  if (ctx.chat.type !== "supergroup") {
-    ctx.reply("This command can only be used in a group.");
+  if (ctx.chat.type !== "group" && ctx.chat.type !== "supergroup") {
+    ctx.reply("This command can only be used in a group or supergroup.");
     return;
   }
 
