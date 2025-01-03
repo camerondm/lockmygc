@@ -16,9 +16,13 @@ const tomorrow = Tomorrow({
 });
 
 export const metadata: Metadata = {
-  title: "LockMyGC | Telegram Bot Invite Generator",
+  title: "LockMyGC | Secure Your Group Chats",
   description:
-    "LockMyGC is a Telegram bot that allows you to lock your group chats with a minimum token count.",
+    "LockMyGC is a powerful Telegram bot that secures your group chats with a minimum token count requirement.",
+  icons: {
+    icon: "/favicon-32x32.png",
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
