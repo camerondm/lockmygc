@@ -28,8 +28,6 @@ export async function POST(req: NextRequest) {
       .eq("id", groupId)
       .single();
 
-    console.log("Data: ", data);
-
     if (error) {
       return NextResponse.json(
         { error: "Token address not found in the database." },
