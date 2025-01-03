@@ -32,7 +32,8 @@ bot.command("activate", async (ctx) => {
     ctx.reply("You must be a member of the group to use this command.");
     return;
   }
-  //   // Check if the user is an admin
+
+  // Check if the user is an admin
   const member = await ctx.getChatMember(memberId);
   if (
     !member.status ||
@@ -57,26 +58,29 @@ bot.command("activate", async (ctx) => {
     return;
   }
 
-  const { error } = await supabase
-    .from("chats")
-    .upsert({
+  try {
+    // Upsert based on composite key (chat_id + token_id)
+    const { error } = await supabase.from("chats").upsert({
       chat_id: chatId.toString(),
       token_id: tokenAddress,
       minimum_token_count: minimumTokenCount,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    })
-    .select();
+    });
 
-  if (error) {
-    console.error("Error saving to Supabase:", error.message);
-    ctx.reply("Failed to activate the bot. Try again later.");
-    return;
+    if (error) {
+      console.error("Error saving to Supabase:", error.message);
+      ctx.reply("Failed to activate the bot. Try again later.");
+      return;
+    }
+
+    ctx.reply(
+      `Bot activated successfully!\nToken Address: ${tokenAddress}\nMinimum Tokens: ${minimumTokenCount}`
+    );
+  } catch (error) {
+    console.error("Unexpected error:", error);
+    ctx.reply("An unexpected error occurred. Please try again.");
   }
-
-  ctx.reply(
-    `Bot activated successfully!\nToken Address: ${tokenAddress}\nMinimum Tokens: ${minimumTokenCount}`
-  );
 });
 
 // Start the bot
