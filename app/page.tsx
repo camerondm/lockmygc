@@ -30,7 +30,8 @@ export default function Home() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, connected } = useWallet();
-
+  const [tokenMetadata, setTokenMetadata] = useState<any>(null);
+  const [minimumTokenCount, setMinimumTokenCount] = useState(0);
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -44,7 +45,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from("chats")
-        .select("token_id")
+        .select("token_id, minimum_token_count")
         .eq("id", id)
         .single();
 
@@ -54,6 +55,7 @@ export default function Home() {
       }
 
       setTokenAddress(data.token_id);
+      setMinimumTokenCount(data.minimum_token_count);
     } catch (err) {
       console.error("Error fetching token ID:", err);
       setError("An unexpected error occurred. Please try again.");
@@ -69,6 +71,12 @@ export default function Home() {
     setIsLoading(true);
     setError("");
     setInviteLink("");
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    if (!id) {
+      setError("No group ID found. Make sure you have the correct URL.");
+      return;
+    }
 
     try {
       const response = await fetch("/api/validate-token", {
@@ -78,7 +86,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           walletAddress: publicKey.toString(),
-          groupId: tokenAddress,
+          groupId: id,
         }),
       });
 
@@ -100,6 +108,26 @@ export default function Home() {
       setIsLoading(false);
     }
   };
+
+  const getTokenMetadata = async (tokenId: string) => {
+    const response = await fetch("/api/get-token-metadata", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tokenId: tokenId,
+      }),
+    });
+    const result = await response.json();
+    setTokenMetadata(result);
+  };
+
+  useEffect(() => {
+    if (tokenAddress) {
+      getTokenMetadata(tokenAddress);
+    }
+  }, [tokenAddress]);
 
   const openTelegramBot = () => {
     window.open("https://t.me/lockmygc_bot", "_blank");
@@ -174,8 +202,19 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  {tokenAddress && <p>{tokenAddress}</p>}
-
+                  {tokenMetadata && (
+                    <div className="flex flex-col items-center gap-2">
+                      <p>
+                        You&apos;ll need at least {minimumTokenCount}{" "}
+                        {tokenMetadata.content.metadata.name}
+                      </p>
+                      <p>to join this group</p>
+                      <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs">
+                        {tokenAddress}
+                      </pre>
+                      {/* <pre>{JSON.stringify(tokenMetadata, null, 2)}</pre> */}
+                    </div>
+                  )}
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -188,10 +227,10 @@ export default function Home() {
                       {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
+                          Checking Token Balance...
                         </>
                       ) : (
-                        "Generate Invite Link"
+                        "Check Token Balance"
                       )}
                     </Button>
                   </motion.div>
@@ -216,7 +255,7 @@ export default function Home() {
                   <Alert className="bg-green-900/50 border-green-700/50">
                     <LinkIcon className="h-4 w-4" />
                     <AlertTitle className="font-mono">
-                      Invite Link Generated
+                      Invite Link Generated!
                     </AlertTitle>
                     <AlertDescription className="font-mono">
                       <a
