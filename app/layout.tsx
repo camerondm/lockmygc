@@ -1,5 +1,5 @@
 import "@/app/globals.css";
-import { IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Tomorrow } from "next/font/google";
 import { SolanaProvider } from "@/app/contexts/SolanaContext";
 import { Metadata } from "next";
 
@@ -7,6 +7,12 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
   subsets: ["latin"],
   variable: "--font-ibm-plex-mono",
+});
+
+const tomorrow = Tomorrow({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-tomorrow",
 });
 
 export const metadata: Metadata = {
@@ -21,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${ibmPlexMono.variable}`}>
+    <html lang="en" className={`dark ${tomorrow.variable}`}>
       <body className="font-mono bg-background text-foreground">
         <SolanaProvider>{children}</SolanaProvider>
       </body>
