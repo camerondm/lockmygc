@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { motion } from "framer-motion";
@@ -18,6 +18,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 
 import FuturisticBackground from "./components/Background";
 import HowItWorks from "./components/HowItWorks";
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Home() {
   const [tokenAddress, setTokenAddress] = useState("");
@@ -25,6 +30,35 @@ export default function Home() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, connected } = useWallet();
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+
+    if (id) {
+      fetchTokenId(id);
+    }
+  }, []);
+
+  const fetchTokenId = async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("chats")
+        .select("token_id")
+        .eq("id", id)
+        .single();
+
+      if (error || !data) {
+        setError("Failed to fetch token ID.");
+        return;
+      }
+
+      setTokenAddress(data.token_id);
+    } catch (err) {
+      console.error("Error fetching token ID:", err);
+      setError("An unexpected error occurred. Please try again.");
+    }
+  };
 
   const handleGenerateInvite = async () => {
     if (!connected || !publicKey) {
@@ -44,7 +78,7 @@ export default function Home() {
         },
         body: JSON.stringify({
           walletAddress: publicKey.toString(),
-          tokenAddress,
+          groupId: tokenAddress,
         }),
       });
 
@@ -140,14 +174,8 @@ export default function Home() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <Input
-                    type="text"
-                    value={tokenAddress}
-                    onChange={(e) => setTokenAddress(e.target.value)}
-                    placeholder="Enter token address"
-                    className="bg-purple-800/50 border-purple-600/50 text-purple-100 font-mono placeholder-purple-300"
-                    disabled={isLoading}
-                  />
+                  {tokenAddress && <p>{tokenAddress}</p>}
+
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

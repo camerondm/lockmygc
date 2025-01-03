@@ -9,11 +9,11 @@ const supabase = createClient(
 
 export async function POST(req: NextRequest) {
   try {
-    const { walletAddress, tokenAddress } = await req.json();
+    const { walletAddress, groupId } = await req.json();
 
-    if (!walletAddress || !tokenAddress) {
+    if (!walletAddress || !groupId) {
       return NextResponse.json(
-        { error: "Wallet address and token address are required." },
+        { error: "Wallet address and group ID are required." },
         { status: 400 }
       );
     }
@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
     // Query Supabase to get the minimum token count and chat_id
     const { data, error } = await supabase
       .from("chats")
-      .select("minimum_token_count, chat_id")
-      .eq("token_id", tokenAddress)
+      .select("minimum_token_count, chat_id, token_address")
+      .eq("id", groupId)
       .single();
 
     if (error || !data) {
@@ -32,13 +32,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { minimum_token_count, chat_id } = data;
+    const { minimum_token_count, chat_id, token_address } = data;
 
     // Use Helius RPC to check the user's token balance
     const connection = new Connection(process.env.HELIUS_RPC_URL!);
     const tokenAccountInfo = await connection.getParsedTokenAccountsByOwner(
       new PublicKey(walletAddress),
-      { mint: new PublicKey(tokenAddress) }
+      { mint: new PublicKey(token_address) }
     );
 
     const tokenBalance =

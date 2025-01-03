@@ -19,9 +19,10 @@ export default function HowItWorks() {
     {
       title: "For everyone else",
       steps: [
+        "Make sure you have the locked invite link (looks like this: lockmygc.com?id=1234567890)",
         "Connect your Solana wallet",
-        "Check if you have the required token in your wallet",
-        "Click the invite link to join the group",
+        "If you have the required token, you will be able to join the group by clicking 'generate invite link'",
+        "If you don't have the required token, go buy it!",
       ],
     },
   ];
