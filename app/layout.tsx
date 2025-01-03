@@ -1,17 +1,7 @@
-"use client";
-
-import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
-import {
-  ConnectionProvider,
-  WalletProvider,
-} from "@solana/wallet-adapter-react";
-import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
-import { useMemo } from "react";
-
 import "@/app/globals.css";
 import { IBM_Plex_Mono } from "next/font/google";
+import { SolanaProvider } from "@/app/contexts/SolanaContext";
+import { Metadata } from "next";
 
 const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500", "600"],
@@ -19,26 +9,21 @@ const ibmPlexMono = IBM_Plex_Mono({
   variable: "--font-ibm-plex-mono",
 });
 
-import "@solana/wallet-adapter-react-ui/styles.css";
+export const metadata: Metadata = {
+  title: "LockMyGC | Telegram Bot Invite Generator",
+  description:
+    "LockMyGC is a Telegram bot that allows you to lock your group chats with a minimum token count.",
+};
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const network = WalletAdapterNetwork.Devnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
-
-  const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
-
   return (
     <html lang="en" className={`dark ${ibmPlexMono.variable}`}>
       <body className="font-mono bg-background text-foreground">
-        <ConnectionProvider endpoint={endpoint}>
-          <WalletProvider wallets={wallets} autoConnect>
-            <WalletModalProvider>{children}</WalletModalProvider>
-          </WalletProvider>
-        </ConnectionProvider>
+        <SolanaProvider>{children}</SolanaProvider>
       </body>
     </html>
   );
