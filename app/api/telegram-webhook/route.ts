@@ -1,0 +1,68 @@
+import { Bot } from "grammy";
+import { createClient } from "@supabase/supabase-js";
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// Initialize Telegram Bot
+const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!);
+
+// Handle bot being added to a group
+bot.on("chat_member", (ctx) => {
+  if (ctx.chatMember.new_chat_member.user.id === ctx.me.id) {
+    ctx.reply(
+      `Hello! Use /activate <token_address> <minimum_token_count> to configure me for this group.`
+    );
+  }
+});
+
+// Handle /activate command
+bot.command("activate", async (ctx) => {
+  if (ctx.chat.type !== "supergroup") {
+    ctx.reply("This command can only be used in a group.");
+    return;
+  }
+
+  const args = ctx.message?.text?.split(" ");
+  if (!args || args.length !== 3) {
+    ctx.reply("Usage: /activate <token_address> <minimum_token_count>");
+    return;
+  }
+
+  const tokenAddress = args[1];
+  const minimumTokenCount = parseInt(args[2]);
+  const chatId = ctx.chat.id;
+
+  if (isNaN(minimumTokenCount)) {
+    ctx.reply("Minimum token count must be an integer.");
+    return;
+  }
+
+  const { data, error } = await supabase
+    .from("chats")
+    .upsert({
+      chat_id: chatId.toString(),
+      token_id: tokenAddress,
+      minimum_token_count: minimumTokenCount,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .select();
+
+  if (error) {
+    console.error("Error saving to Supabase:", error.message);
+    ctx.reply("Failed to activate the bot. Try again later.");
+    return;
+  }
+
+  ctx.reply(
+    `Bot activated successfully!\nToken Address: ${tokenAddress}\nMinimum Tokens: ${minimumTokenCount}`
+  );
+});
+
+// Start the bot
+bot.start();
+console.log("Telegram bot is running...");
