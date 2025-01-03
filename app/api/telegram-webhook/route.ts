@@ -70,22 +70,30 @@ bot.command("activate", async (ctx) => {
 
   try {
     // Upsert based on composite key (chat_id + token_id)
-    const { error } = await supabase.from("chats").upsert({
-      chat_id: chatId.toString(),
-      token_id: tokenAddress,
-      minimum_token_count: minimumTokenCount,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
+    const { data, error } = await supabase
+      .from("chats")
+      .upsert({
+        chat_id: chatId.toString(),
+        token_id: tokenAddress,
+        minimum_token_count: minimumTokenCount,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
 
     if (error) {
       console.error("Error saving to Supabase:", error.message);
       ctx.reply("Failed to activate the bot. Try again later.");
       return;
     }
+    if (!data) {
+      ctx.reply("Failed to activate the bot. Try again later.");
+      return;
+    }
 
     ctx.reply(
-      `Bot activated successfully!\nToken Address: ${tokenAddress}\nMinimum Tokens: ${minimumTokenCount}`
+      `Bot activated successfully!\nToken Address: ${tokenAddress}\nMinimum Tokens: ${minimumTokenCount}. Use this link to invite members: ${process.env.NEXT_PUBLIC_BASE_URL}?id=${data.id}`
     );
   } catch (error) {
     console.error("Unexpected error:", error);

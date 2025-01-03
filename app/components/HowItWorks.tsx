@@ -11,7 +11,7 @@ export default function HowItWorks() {
       title: "For group chat owners",
       steps: [
         "Add the bot to your group chat as an admin",
-        "Make sure it has the permission to generate invite links",
+        "Make sure it has the permission to invite users via link",
         "Run the command /activate <token_address> <minimum_token_count>",
         "Share the link with potential members",
       ],
