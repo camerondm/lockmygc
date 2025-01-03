@@ -1,13 +1,7 @@
 import "@/app/globals.css";
-import { IBM_Plex_Mono, Tomorrow } from "next/font/google";
+import { Tomorrow } from "next/font/google";
 import { SolanaProvider } from "@/app/contexts/SolanaContext";
 import { Metadata } from "next";
-
-const ibmPlexMono = IBM_Plex_Mono({
-  weight: ["400", "500", "600"],
-  subsets: ["latin"],
-  variable: "--font-ibm-plex-mono",
-});
 
 const tomorrow = Tomorrow({
   weight: ["400", "500", "600"],

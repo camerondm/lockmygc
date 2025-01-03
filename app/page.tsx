@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { motion } from "framer-motion";
-import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import {
   Card,
