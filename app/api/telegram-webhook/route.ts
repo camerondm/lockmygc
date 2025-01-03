@@ -27,6 +27,16 @@ bot.command("activate", async (ctx) => {
     return;
   }
 
+  // Check if the bot is an admin
+  const botMember = await ctx.getChatMember(ctx.me.id);
+  if (
+    !botMember.status ||
+    (botMember.status !== "administrator" && botMember.status !== "creator")
+  ) {
+    ctx.reply("I need to be an admin to perform this action.");
+    return;
+  }
+
   const memberId = ctx.from?.id;
   if (!memberId) {
     ctx.reply("You must be a member of the group to use this command.");
