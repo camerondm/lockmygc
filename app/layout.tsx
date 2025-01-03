@@ -10,7 +10,17 @@ import { PhantomWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { clusterApiUrl } from "@solana/web3.js";
 import { useMemo } from "react";
 
+import "@/app/globals.css";
+import { IBM_Plex_Mono } from "next/font/google";
+
+const ibmPlexMono = IBM_Plex_Mono({
+  weight: ["400", "500", "600"],
+  subsets: ["latin"],
+  variable: "--font-ibm-plex-mono",
+});
+
 import "@solana/wallet-adapter-react-ui/styles.css";
+
 export default function RootLayout({
   children,
 }: {
@@ -22,8 +32,8 @@ export default function RootLayout({
   const wallets = useMemo(() => [new PhantomWalletAdapter()], []);
 
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={`dark ${ibmPlexMono.variable}`}>
+      <body className="font-mono bg-background text-foreground">
         <ConnectionProvider endpoint={endpoint}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider>{children}</WalletModalProvider>

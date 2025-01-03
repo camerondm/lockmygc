@@ -9,7 +9,6 @@ const supabase = createClient(
 
 // Initialize Telegram Bot
 const botToken = process.env.TELEGRAM_BOT_TOKEN!;
-console.log("Bot token:", botToken);
 const bot = new Bot(botToken);
 
 // Handle bot being added to a group
@@ -25,6 +24,21 @@ bot.on("chat_member", (ctx) => {
 bot.command("activate", async (ctx) => {
   if (ctx.chat.type !== "supergroup") {
     ctx.reply("This command can only be used in a group.");
+    return;
+  }
+
+  const memberId = ctx.from?.id;
+  if (!memberId) {
+    ctx.reply("You must be a member of the group to use this command.");
+    return;
+  }
+  //   // Check if the user is an admin
+  const member = await ctx.getChatMember(memberId);
+  if (
+    !member.status ||
+    (member.status !== "administrator" && member.status !== "creator")
+  ) {
+    ctx.reply("You must be an admin to use this command.");
     return;
   }
 
