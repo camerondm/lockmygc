@@ -33,7 +33,6 @@ export default function Home() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokenMetadata, setTokenMetadata] = useState<any>(null);
   const [minimumTokenCount, setMinimumTokenCount] = useState(0);
-  const contractAddress = "0xYourContractAddressHere"; // Replace with your actual contract address
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
