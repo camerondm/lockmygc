@@ -8,7 +8,9 @@ const supabase = createClient(
 );
 
 // Initialize Telegram Bot
-const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!);
+const botToken = process.env.TELEGRAM_BOT_TOKEN!;
+console.log("Bot token:", botToken);
+const bot = new Bot(botToken);
 
 // Handle bot being added to a group
 bot.on("chat_member", (ctx) => {
