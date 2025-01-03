@@ -93,6 +93,16 @@ bot.command("activate", async (ctx) => {
   }
 });
 
-// Start the bot
-bot.start();
-console.log("Telegram bot is running...");
+// Export the webhook handler
+export async function POST(req: Request) {
+  const body = await req.json();
+  try {
+    await bot.handleUpdate(body); // Process Telegram updates via webhook
+    return new Response("OK", { status: 200 });
+  } catch (error) {
+    console.error("Error handling update:", error);
+    return new Response("Internal Server Error", { status: 500 });
+  }
+}
+
+console.log("Webhook handler ready.");
