@@ -41,7 +41,7 @@ bot.command("activate", async (ctx) => {
     return;
   }
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("chats")
     .upsert({
       chat_id: chatId.toString(),
