@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { motion } from "framer-motion";
 import { Button } from "@/app/components/ui/button";
 import {
@@ -12,13 +11,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { AlertCircle, Copy, LinkIcon, Loader2, Send } from "lucide-react";
+import { AlertCircle, Copy, LinkIcon, Loader2 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import Image from "next/image";
 import FuturisticBackground from "./components/Background";
 import HowItWorks from "./components/HowItWorks";
 import { createClient } from "@supabase/supabase-js";
 import { Navbar } from "./components/Navbar";
+import RainbowConnectButton from "./components/RainbowConnectButton";
+import SolanaConnectButton from "./components/SolanaConnectButton";
+import { useAccount } from "wagmi";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -30,9 +33,11 @@ export default function Home() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { publicKey, connected } = useWallet();
+  const { address: baseAddress } = useAccount();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokenMetadata, setTokenMetadata] = useState<any>(null);
   const [minimumTokenCount, setMinimumTokenCount] = useState(0);
+  const [addressType, setAddressType] = useState<"base" | "solana">("base");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -60,6 +65,7 @@ export default function Home() {
 
       setTokenAddress(data.token_id);
       setMinimumTokenCount(data.minimum_token_count);
+      setAddressType(data.token_id.startsWith("0x") ? "base" : "solana");
     } catch (err) {
       console.error("Error fetching token ID:", err);
       setError("An unexpected error occurred. Please try again.");
@@ -67,9 +73,19 @@ export default function Home() {
   };
 
   const handleGenerateInvite = async () => {
-    if (!connected || !publicKey) {
-      setError("Please connect your Solana wallet first.");
-      return;
+    let walletAddress;
+    if (addressType === "solana") {
+      if (!connected || !publicKey) {
+        setError("Please connect your Solana wallet first.");
+        return;
+      }
+      walletAddress = publicKey.toString();
+    } else {
+      if (!baseAddress) {
+        setError("Please connect your Base wallet first.");
+        return;
+      }
+      walletAddress = baseAddress;
     }
 
     setIsLoading(true);
@@ -98,7 +114,7 @@ export default function Home() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          walletAddress: publicKey.toString(),
+          walletAddress,
           groupId: id,
         }),
       });
@@ -130,7 +146,7 @@ export default function Home() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        tokenId: tokenId,
+        tokenId,
       }),
     });
     const result = await response.json();
@@ -142,10 +158,6 @@ export default function Home() {
       getTokenMetadata(tokenAddress);
     }
   }, [tokenAddress]);
-
-  const openTelegramBot = () => {
-    window.open("https://t.me/lockmygc_bot", "_blank");
-  };
 
   const generateInviteLink = async (chatId: string) => {
     try {
@@ -214,28 +226,22 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-col md:flex-row justify-center md:space-x-4 space-y-4 md:space-y-0 items-center">
+              <div className="flex flex-col md:flex-row justify-center gap-2 items-center">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <WalletMultiButton className="!bg-purple-700 hover:!bg-purple-600 !text-purple-50 transition-colors font-mono !max-w-[100px]" />
+                  <SolanaConnectButton />
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <button
-                    onClick={openTelegramBot}
-                    className="bg-[#0088cc] hover:bg-[#0077b5] text-white font-mono flex items-center rounded-[4px] text-base  py-3 px-6"
-                  >
-                    <Send className="mr-2 h-4 w-4" />
-                    Open Bot
-                  </button>
+                  <RainbowConnectButton />
                 </motion.div>
               </div>
 
-              {tokenMetadata && (
+              {tokenMetadata && addressType === "solana" && (
                 <motion.div
                   className="space-y-4 bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-lg p-4"
                   initial={{ opacity: 0 }}
@@ -279,8 +285,53 @@ export default function Home() {
                   </div>
                 </motion.div>
               )}
+              {tokenMetadata && addressType === "base" && (
+                <motion.div
+                  className="space-y-4 bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-lg p-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="flex flex-col items-center gap-2 ">
+                    <div className="flex flex-row items-center gap-2">
+                      {tokenMetadata.logo && (
+                        <Image
+                          src={tokenMetadata.logo}
+                          alt={tokenMetadata.name}
+                          width={36}
+                          height={36}
+                          className="rounded-xl"
+                        />
+                      )}
+                      <p className="text-purple-50 font-mono text-sm">
+                        You&apos;ll need at least{" "}
+                        <span className="font-bold">
+                          {minimumTokenCount} {tokenMetadata.name}
+                        </span>{" "}
+                        to join this group
+                      </p>
+                    </div>
+                    {!connected && (
+                      <p className="text-purple-50 font-mono text-xs">
+                        Connect your wallet to check your balance.
+                      </p>
+                    )}
+                    <button
+                      onClick={() => {
+                        copyToClipboard(tokenAddress);
+                      }}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs overflow-ellipsis">
+                        {tokenAddress.slice(0, 20)}...
+                      </pre>
+                      <Copy className="h-4 w-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
-              {connected && (
+              {(baseAddress || connected) && (
                 <>
                   {/* divider */}
                   <div className="w-full h-[1px] bg-purple-500/30"></div>

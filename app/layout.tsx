@@ -2,6 +2,8 @@ import "@/app/globals.css";
 import { Tomorrow } from "next/font/google";
 import { SolanaProvider } from "@/app/contexts/SolanaContext";
 import { Metadata } from "next";
+import { WagmiProviders } from "./contexts/WagmiContext";
+import "@rainbow-me/rainbowkit/styles.css";
 
 const tomorrow = Tomorrow({
   weight: ["400", "500", "600"],
@@ -27,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`dark ${tomorrow.variable}`}>
       <body className="font-mono bg-background text-foreground">
-        <SolanaProvider>{children}</SolanaProvider>
+        <WagmiProviders>
+          <SolanaProvider>{children}</SolanaProvider>
+        </WagmiProviders>
       </body>
     </html>
   );

@@ -61,12 +61,19 @@ bot.command("activate", async (ctx) => {
 
   const tokenAddress = args[1];
 
-  // Validate Solana address
+  // Validate token address for Solana or Base network
   try {
-    new PublicKey(tokenAddress);
+    if (isSolanaAddress(tokenAddress)) {
+      new PublicKey(tokenAddress); // Validate Solana address
+    } else if (isBaseNetworkAddress(tokenAddress)) {
+      // Add your Base network address validation logic here
+      // For example, check if it matches a specific pattern or length
+    } else {
+      throw new Error("Invalid address format for Solana or Base network.");
+    }
   } catch (error) {
-    ctx.reply("Invalid Solana address. Please try again.");
-    console.error("Invalid Solana address:", error);
+    ctx.reply("Invalid token address. Please try again.");
+    console.error("Invalid token address:", error);
     return;
   }
 
@@ -189,3 +196,18 @@ export async function POST(req: Request) {
 }
 
 console.log("Webhook handler ready.");
+
+// Helper function to check if the address is a Solana address
+function isSolanaAddress(address: string): boolean {
+  try {
+    new PublicKey(address);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Helper function to check if the address is a Base network address
+function isBaseNetworkAddress(address: string): boolean {
+  return /^0x[0-9a-fA-F]{40}$/.test(address); // Example pattern
+}
