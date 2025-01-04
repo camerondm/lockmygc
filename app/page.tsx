@@ -169,7 +169,7 @@ export default function Home() {
     <div className="min-h-screen overflow-x-hidden text-purple-50">
       <FuturisticBackground />
       <Navbar />
-      <div className="container mx-auto px-4 py-8 md:py-16 relative z-10">
+      <div className="container mx-auto px-4 py-8 md:py-16 relative z-10 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -285,9 +285,14 @@ export default function Home() {
             </CardContent>
           </Card>
         </motion.div>
-
+        <span className="text-purple-200 text-[10px] mt-2 mx-auto max-w-md flex items-center">
+          This DApp can only read your token balances. It does not have any
+          other access to your wallet or any write permissions. It does not
+          store any data about you. Feel free to use a test wallet to preview
+          permissions.
+        </span>
         {/* Additional Sections */}
-        <div className="space-y-16 mt-16">
+        <div className="space-y-16 mt-12">
           <HowItWorks />
         </div>
       </div>
