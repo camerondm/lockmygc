@@ -14,7 +14,7 @@ import {
 } from "@/app/components/ui/card";
 import { AlertCircle, LinkIcon, Loader2, Send } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
-
+import Image from "next/image";
 import FuturisticBackground from "./components/Background";
 import HowItWorks from "./components/HowItWorks";
 import { createClient } from "@supabase/supabase-js";
@@ -52,7 +52,9 @@ export default function Home() {
         .single();
 
       if (error || !data) {
-        setError("Failed to fetch token ID.");
+        setError(
+          "Failed to fetch token ID. Are you sure you have the correct URL?"
+        );
         return;
       }
 
@@ -206,47 +208,79 @@ export default function Home() {
                   </Button>
                 </motion.div>
               </div>
-              <motion.div
-                className="space-y-4"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                {tokenMetadata && (
-                  <div className="flex flex-col items-center gap-2">
-                    <p>
-                      You&apos;ll need at least {minimumTokenCount}{" "}
-                      {tokenMetadata.content.metadata.name}
-                    </p>
-                    <p>to join this group</p>
+
+              {tokenMetadata && (
+                <motion.div
+                  className="space-y-4 bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-lg p-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="flex flex-col items-center gap-2 ">
+                    <div className="flex flex-row items-center gap-2">
+                      <Image
+                        src={tokenMetadata.content.links.image}
+                        alt={tokenMetadata.content.metadata.name}
+                        width={36}
+                        height={36}
+                        className="rounded-xl"
+                      />
+                      <p className="text-purple-50 font-mono text-sm">
+                        You&apos;ll need at least{" "}
+                        <span className="font-bold">
+                          {minimumTokenCount}{" "}
+                          {tokenMetadata.content.metadata.name}
+                        </span>{" "}
+                        to join this group
+                      </p>
+                    </div>
+                    {!connected && (
+                      <p className="text-purple-50 font-mono text-xs">
+                        Connect your wallet to check your balance.
+                      </p>
+                    )}
                     <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs">
                       {tokenAddress}
                     </pre>
                     {/* <pre>{JSON.stringify(tokenMetadata, null, 2)}</pre> */}
                   </div>
-                )}
-                {connected && (
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button
-                      onClick={handleGenerateInvite}
-                      className="w-full bg-purple-700 hover:bg-purple-600 text-purple-50 font-mono"
-                      disabled={isLoading}
+                </motion.div>
+              )}
+
+              {connected && (
+                <>
+                  {/* divider */}
+                  <div className="w-full h-[1px] bg-purple-500/30"></div>
+                  {tokenMetadata ? (
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Checking Token Balance...
-                        </>
-                      ) : (
-                        "Check Token Balance"
-                      )}
-                    </Button>
-                  </motion.div>
-                )}
-              </motion.div>
+                      <Button
+                        onClick={handleGenerateInvite}
+                        className="w-full bg-purple-700 hover:bg-purple-600 text-purple-50 font-mono"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Checking Token Balance...
+                          </>
+                        ) : (
+                          "Check Token Balance"
+                        )}
+                      </Button>
+                    </motion.div>
+                  ) : (
+                    <motion.div>
+                      <div className="w-full bg-purple-700/50 text-purple-50 font-mono p-4 text-sm rounded-xl">
+                        You're not on a link for a group yet. Check your url for
+                        an id.
+                      </div>
+                    </motion.div>
+                  )}
+                </>
+              )}
 
               {error && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
