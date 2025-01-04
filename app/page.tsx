@@ -80,6 +80,13 @@ export default function Home() {
       return;
     }
 
+    // check localstorage if the user has already generated an invite link
+    const hasGeneratedInvite = localStorage.getItem(`inviteLink_${id}`);
+    if (hasGeneratedInvite) {
+      setInviteLink(hasGeneratedInvite);
+      return;
+    }
+
     try {
       const response = await fetch("/api/validate-token", {
         method: "POST",
@@ -102,6 +109,7 @@ export default function Home() {
       const generatedInviteLink = await generateInviteLink(result.chat_id);
       if (generatedInviteLink) {
         setInviteLink(generatedInviteLink);
+        localStorage.setItem(`inviteLink_${id}`, generatedInviteLink);
       }
     } catch (err) {
       console.error("Error validating token:", err);
