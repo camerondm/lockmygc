@@ -68,7 +68,8 @@ bot.command("activate", async (ctx) => {
   try {
     new PublicKey(tokenAddress);
   } catch (error) {
-    ctx.reply("Invalid Solana address.");
+    ctx.reply("Invalid Solana address. Please try again.");
+    console.error("Invalid Solana address:", error);
     return;
   }
 
