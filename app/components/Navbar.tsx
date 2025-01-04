@@ -32,7 +32,7 @@ export function Navbar() {
           </Link> */}
         </div>
         <Link
-          href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=CKfatsPMUf8SkiURsDXs7eK6GwP8wKgdPXhNyGwGFLbm&fixed=in"
+          href="https://dexscreener.com/solana/BcH93P52gwmAAEvVVevoS4m4rCVFQDVNqrApN9fSpump?1735949954874"
           target="_blank"
           rel="noopener noreferrer"
         >
