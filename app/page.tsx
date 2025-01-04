@@ -276,8 +276,8 @@ export default function Home() {
                   ) : (
                     <motion.div>
                       <div className="w-full bg-purple-700/50 text-purple-50 font-mono p-4 text-sm rounded-xl">
-                        You're not on a link for a group yet. Check your url for
-                        an id.
+                        You&apos;re not on a link for a group yet. Check your
+                        url for an id.
                       </div>
                     </motion.div>
                   )}
