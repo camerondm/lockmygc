@@ -1,5 +1,6 @@
 import { Bot } from "grammy";
 import { createClient } from "@supabase/supabase-js";
+import { PublicKey } from "@solana/web3.js";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -62,6 +63,15 @@ bot.command("activate", async (ctx) => {
   }
 
   const tokenAddress = args[1];
+
+  // Validate Solana address
+  try {
+    new PublicKey(tokenAddress);
+  } catch (error) {
+    ctx.reply("Invalid Solana address.");
+    return;
+  }
+
   const minimumTokenCount = parseInt(args[2]);
   const chatId = ctx.chat.id;
 
