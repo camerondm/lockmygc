@@ -86,6 +86,8 @@ export default function Home() {
     const hasGeneratedInvite = localStorage.getItem(`inviteLink_${id}`);
     if (hasGeneratedInvite) {
       setInviteLink(hasGeneratedInvite);
+      setIsLoading(false);
+      setError("");
       return;
     }
 
