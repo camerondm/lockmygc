@@ -206,26 +206,26 @@ export default function Home() {
                   </Button>
                 </motion.div>
               </div>
-              {connected && (
-                <motion.div
-                  className="space-y-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  {tokenMetadata && (
-                    <div className="flex flex-col items-center gap-2">
-                      <p>
-                        You&apos;ll need at least {minimumTokenCount}{" "}
-                        {tokenMetadata.content.metadata.name}
-                      </p>
-                      <p>to join this group</p>
-                      <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs">
-                        {tokenAddress}
-                      </pre>
-                      {/* <pre>{JSON.stringify(tokenMetadata, null, 2)}</pre> */}
-                    </div>
-                  )}
+              <motion.div
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                {tokenMetadata && (
+                  <div className="flex flex-col items-center gap-2">
+                    <p>
+                      You&apos;ll need at least {minimumTokenCount}{" "}
+                      {tokenMetadata.content.metadata.name}
+                    </p>
+                    <p>to join this group</p>
+                    <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs">
+                      {tokenAddress}
+                    </pre>
+                    {/* <pre>{JSON.stringify(tokenMetadata, null, 2)}</pre> */}
+                  </div>
+                )}
+                {connected && (
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -245,8 +245,9 @@ export default function Home() {
                       )}
                     </Button>
                   </motion.div>
-                </motion.div>
-              )}
+                )}
+              </motion.div>
+
               {error && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <Alert
