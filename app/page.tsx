@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { AlertCircle, LinkIcon, Loader2, Send } from "lucide-react";
+import { AlertCircle, Copy, LinkIcon, Loader2, Send } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/app/components/ui/alert";
 import Image from "next/image";
 import FuturisticBackground from "./components/Background";
@@ -169,6 +169,30 @@ export default function Home() {
     }
   };
 
+  const copyToClipboard = async (textToCopy: string) => {
+    if (typeof ClipboardItem && navigator.clipboard.write) {
+      // this solution works for both chrome and safari
+      navigator.clipboard
+        .write([
+          new ClipboardItem({
+            "text/plain": new Promise((resolve) => {
+              resolve(new Blob([textToCopy], { type: "text/plain" }));
+            }),
+          }),
+        ])
+        .then(() => {
+          alert("Address copied to clipboard!");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      // this solution works for firefox
+      navigator.clipboard.writeText(textToCopy);
+      alert("Address copied to clipboard!");
+    }
+  };
+
   return (
     <div className="min-h-screen overflow-x-hidden text-purple-50">
       <FuturisticBackground />
@@ -190,24 +214,24 @@ export default function Home() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-center space-x-4 items-center">
+              <div className="flex flex-col md:flex-row justify-center md:space-x-4 space-y-4 md:space-y-0 items-center">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <WalletMultiButton className="!bg-purple-700 hover:!bg-purple-600 !text-purple-50 transition-colors font-mono" />
+                  <WalletMultiButton className="!bg-purple-700 hover:!bg-purple-600 !text-purple-50 transition-colors font-mono !max-w-[100px]" />
                 </motion.div>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Button
+                  <button
                     onClick={openTelegramBot}
-                    className="bg-[#0088cc] hover:bg-[#0077b5] text-white font-mono flex items-center rounded-[4px] text-base py-6 px-6"
+                    className="bg-[#0088cc] hover:bg-[#0077b5] text-white font-mono flex items-center rounded-[4px] text-base  py-3 px-6"
                   >
                     <Send className="mr-2 h-4 w-4" />
                     Open Bot
-                  </Button>
+                  </button>
                 </motion.div>
               </div>
 
@@ -241,10 +265,17 @@ export default function Home() {
                         Connect your wallet to check your balance.
                       </p>
                     )}
-                    <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs">
-                      {tokenAddress}
-                    </pre>
-                    {/* <pre>{JSON.stringify(tokenMetadata, null, 2)}</pre> */}
+                    <button
+                      onClick={() => {
+                        copyToClipboard(tokenAddress);
+                      }}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <pre className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 rounded-md p-2 text-xs overflow-ellipsis">
+                        {tokenAddress.slice(0, 20)}...
+                      </pre>
+                      <Copy className="h-4 w-4" />
+                    </button>
                   </div>
                 </motion.div>
               )}
