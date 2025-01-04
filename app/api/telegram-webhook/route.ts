@@ -15,10 +15,7 @@ const bot = new Bot(botToken);
 // Handle /start command
 bot.command("start", async (ctx) => {
   ctx.reply(
-    "Hello! Use /activate <token_address> <minimum_token_count> to configure me for this group.",
-    {
-      parse_mode: "Markdown",
-    }
+    "Hello! Use /activate <token_address> <minimum_token_count> to configure me for this group. Check out `https://www.lockmygc.com/` for more info."
   );
 });
 
