@@ -39,6 +39,10 @@ export default function Home() {
   const [minimumTokenCount, setMinimumTokenCount] = useState(0);
   const [addressType, setAddressType] = useState<"base" | "solana">("base");
 
+  const [groupName, setGroupName] = useState("");
+  const [groupImage, setGroupImage] = useState("");
+  const [groupDescription, setGroupDescription] = useState("");
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get("id");
@@ -52,7 +56,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from("chats")
-        .select("token_id, minimum_token_count")
+        .select("token_id, minimum_token_count, name, image_url, description")
         .eq("id", id)
         .single();
 
@@ -66,6 +70,9 @@ export default function Home() {
       setTokenAddress(data.token_id);
       setMinimumTokenCount(data.minimum_token_count);
       setAddressType(data.token_id.startsWith("0x") ? "base" : "solana");
+      setGroupName(data.name);
+      setGroupImage(data.image_url);
+      setGroupDescription(data.description);
     } catch (err) {
       console.error("Error fetching token ID:", err);
       setError("An unexpected error occurred. Please try again.");
@@ -216,13 +223,28 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="max-w-md mx-auto mb-12"
         >
-          <Card className="bg-purple-900/30 backdrop-blur-md border-purple-500/30">
+          <Card className="bg-purple-900/30 backdrop-blur-md border-purple-500/30 relative">
+            {groupImage?.length > 0 && (
+              <div className="flex justify-center items-center w-full h-full -z-10 absolute top-0 left-0 opacity-25">
+                <Image
+                  src={
+                    process.env.NEXT_PUBLIC_SUPABASE_URL! +
+                    `/storage/v1/object/public/${groupImage}`
+                  }
+                  alt={groupName}
+                  fill
+                  className="object-cover backdrop-blur-sm"
+                />
+              </div>
+            )}
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-center font-mono text-purple-100">
-                Lock My GC
+                {groupName?.length > 0 ? groupName : "Lock My GC"}
               </CardTitle>
               <CardDescription className="text-center font-mono text-purple-200">
-                Lock your group chat to only holders of your token
+                {groupDescription?.length > 0
+                  ? groupDescription
+                  : "Lock your group chat to only holders of your token"}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

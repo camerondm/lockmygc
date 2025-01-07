@@ -138,7 +138,22 @@ bot.command("activate", async (ctx) => {
 
     ctx.reply(
       `Bot activated successfully!\nToken Address: \`${tokenAddress}\`\nMinimum Tokens: \`${minimumTokenCount}\`. \nUse this link: \n\`${process.env.NEXT_PUBLIC_BASE_URL}?id=${data.id}\` \nto invite members.`,
-      { parse_mode: "Markdown" }
+      {
+        parse_mode: "Markdown",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              { text: "Add name", callback_data: `add_name_${chatId}` },
+              { text: "Add image", callback_data: `add_image_${chatId}` },
+              {
+                text: "Add description",
+                callback_data: `add_description_${chatId}`,
+              },
+              { text: "Delete", callback_data: `delete_${chatId}` },
+            ],
+          ],
+        },
+      }
     );
   } catch (error) {
     console.error("Unexpected error:", error);
@@ -176,6 +191,129 @@ bot.on("callback_query:data", async (ctx) => {
   } else if (data === "cancel") {
     ctx.answerCallbackQuery("Operation cancelled.");
     ctx.editMessageText("Operation cancelled.");
+  } else if (data.startsWith("add_name_")) {
+    const chatId = data.split("_")[2];
+
+    // Prompt user to enter a name
+    ctx.reply("Please enter the name you want to set:");
+
+    // Listen for the next message from the user
+    bot.on("message:text", async (ctx) => {
+      const name = ctx.message.text;
+
+      try {
+        const { error } = await supabase
+          .from("chats")
+          .update({ name })
+          .eq("chat_id", chatId);
+
+        if (error) {
+          console.error("Error updating name in Supabase:", error.message);
+          ctx.reply("Failed to set the name. Try again later.");
+          return;
+        }
+
+        ctx.reply("Name was set successfully.");
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        ctx.reply("An unexpected error occurred. Please try again.");
+      }
+    });
+  } else if (data.startsWith("add_image_")) {
+    const chatId = data.split("_")[2];
+
+    // Prompt user to send an image
+    ctx.reply("Please send the image you want to set:");
+
+    // Listen for the next message from the user
+    bot.on("message:photo", async (ctx) => {
+      const photo = ctx.message.photo.pop(); // Get the highest resolution photo
+      if (!photo) {
+        ctx.reply("No image found. Please try again.");
+        return;
+      }
+
+      try {
+        // Get the file  from Telegram
+        const file = await ctx.getFile();
+        const path = file.file_path;
+        if (!path) {
+          ctx.reply("Failed to get the image path. Try again later.");
+          return;
+        }
+
+        const fetchPath = `https://api.telegram.org/file/bot${botToken}/${path}`;
+        const blob = await fetch(fetchPath).then((res) => res.blob());
+
+        // Upload the image to Supabase storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("images")
+          .upload(`chat_${chatId}/${photo.file_id}.jpg`, blob, {
+            cacheControl: "3600",
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error(
+            "Error uploading image to Supabase:",
+            uploadError.message
+          );
+          ctx.reply("Failed to upload the image. Try again later.");
+          return;
+        }
+
+        // Update the image_url column in the database
+        const { error: updateError } = await supabase
+          .from("chats")
+          .update({ image_url: uploadData.fullPath })
+          .eq("chat_id", chatId);
+
+        if (updateError) {
+          console.error(
+            "Error updating image URL in Supabase:",
+            updateError.message
+          );
+          ctx.reply("Failed to set the image. Try again later.");
+          return;
+        }
+
+        ctx.reply("Image was set successfully.");
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        ctx.reply("An unexpected error occurred. Please try again.");
+      }
+    });
+  } else if (data.startsWith("add_description_")) {
+    const chatId = data.split("_")[2];
+
+    // Prompt user to enter a description
+    ctx.reply("Please enter the description you want to set:");
+
+    // Listen for the next message from the user
+    bot.on("message:text", async (ctx) => {
+      const description = ctx.message.text;
+
+      try {
+        const { error } = await supabase
+          .from("chats")
+          .update({ description })
+          .eq("chat_id", chatId);
+
+        if (error) {
+          console.error(
+            "Error updating description in Supabase:",
+            error.message
+          );
+          ctx.reply("Failed to set the description. Try again later.");
+          return;
+        }
+
+        ctx.reply("Description was set successfully.");
+      } catch (error) {
+        console.error("Unexpected error:", error);
+        ctx.reply("An unexpected error occurred. Please try again.");
+      }
+    });
   }
 });
 
